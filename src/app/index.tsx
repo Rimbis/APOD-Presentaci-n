@@ -1,98 +1,60 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, View, StyleSheet, ActivityIndicator, ScrollView } from "react-native";
+import { useVideoPlayer } from 'expo-video';
+import ApodCabecera from "../../components/ApodCabecera";
+import ApodPrincipal from "../../components/ApodPrincipal";
+import HistorialLista from "../../components/HistorialLista";
+import { useApod, useHistorial } from "../../hooks/useApod";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+export default function Index() {   // Traigo el APOD de hoy y el historial de los últimos 5 días.
+  const { data, setData, loading, error } = useApod();
+  const historial = useHistorial(5);
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
+  const player = useVideoPlayer(
+    data?.media_type === "video" ? data.url : null,
+    (player) => { player.loop = false; }
+  );
+
+  if (loading) {
     return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
+      <View style={styles.centrado}>
+        <ActivityIndicator size="large" />
+      </View>
     );
   }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+  if (error) {
+    return (
+      <View style={styles.centrado}>
+        <Text>Ocurrió un error: {error}</Text>
+      </View>
+    );
+  }
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+  // Por las dudas de que no haya datos ni error, no renderiza nada.
+  //POR SI LAS DUDAS, CUANDO ESTAABA HACIENDO ESTO SE CAYO LA PVTA API
+  if (!data) return null;
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+  return ( //gracias Claude por tu consejo, lol.
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+    //Si puedo dibujar en cajas partes de mi codigo y ponerle un nombre, eso es un componente.
+    //No era tan complicado, viste? y SI LO HAGO BIEN LO PUEDO REUTILIZAR
+    //Estaba loca cuando escribi esto
+
+    <ScrollView contentContainerStyle={styles.container}>
+      <ApodCabecera titulo={data.title} />
+      <ApodPrincipal data={data} player={player} />
+      <HistorialLista historial={historial} onSelect={setData} />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+    backgroundColor: "skyblue",
+    alignItems: "center",
+    margin: 20,
+    borderRadius: 5,
+    padding: 10,
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
+  centrado: { flex: 1, alignItems: "center", justifyContent: "center", padding: 20 },
 });
