@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import type { Apod } from "../hooks/useApod";
 
 const colores = ["#E0F4FF", "#C2E9FB", "#A6DDF0", "#8AD0E8", "#6FC3E0"];
@@ -14,6 +14,7 @@ export default function HistorialItem({ //una destructuración muy cool
   onPress: () => void;
 }) {
   const colorFondo = colores[index % colores.length];
+ // a este wachin lo puse con IA, no sabia como mier poner colores luego de despatarrar todo el index
 
   return (
     <TouchableOpacity

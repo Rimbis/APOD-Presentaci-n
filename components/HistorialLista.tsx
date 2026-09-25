@@ -1,13 +1,13 @@
-import { View, Text, StyleSheet } from "react-native";
-import HistorialItem from "./HistorialItem";
+import { StyleSheet, Text, View } from "react-native";
 import type { Apod } from "../hooks/useApod";
+import HistorialItem from "./HistorialItem";
 
 export default function HistorialLista({
     historial, 
     onSelect,
 }: {
     historial: Apod[]; //el array que voy a destructurar más abajo
-    onSelect: (item: Apod) => void; //recibo la pendejada del APOD
+    onSelect: (item: Apod) => void; //recibo la pendejada del APOD 
 }) {
     return (
         <View style={styles.containerdos}>
@@ -18,8 +18,8 @@ export default function HistorialLista({
                     item={item} // Recibe "item" (los datos del día)
                     index={index} //"index" (su posición en la lista, usado para el color de fondo)
                     onPress={() => onSelect(item)} //"onPress" (qué hacer si lo tocan).
-                // Estos tres valores se los pasa el componente padre HistorialLista,
-                // que es quien recorre el array completo con .map().
+                // el onselect es como el setData.
+                //luego de mapear el mapa de history lo envia al wachin de hirtorialitem
                 />
             ))}
         </View>
